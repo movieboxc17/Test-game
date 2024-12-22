@@ -1,0 +1,64 @@
+let balance = 1000;
+let earnings = 0;
+const assets = {};
+
+// Update the dashboard UI
+function updateUI() {
+    document.getElementById("balance").textContent = balance.toFixed(2);
+    document.getElementById("earnings").textContent = earnings.toFixed(2);
+
+    const assetsList = document.getElementById("assets-list");
+    assetsList.innerHTML = "";
+
+    for (const [name, asset] of Object.entries(assets)) {
+        assetsList.innerHTML += `<li>${name} x${asset.count} - $${asset.earnings}/sec</li>`;
+    }
+}
+
+// Buy an asset
+function buyAsset(name, price, rent, isStock = false) {
+    if (balance >= price) {
+        balance -= price;
+
+        if (!assets[name]) {
+            assets[name] = { count: 0, earnings: 0, isStock };
+        }
+        assets[name].count += 1;
+        assets[name].earnings += rent;
+
+        if (!isStock) earnings += rent;
+
+        updateUI();
+    } else {
+        alert("Not enough money!");
+    }
+}
+
+// Generate periodic income
+setInterval(() => {
+    balance += earnings;
+    updateUI();
+}, 1000);
+
+// Trigger random events
+setInterval(() => {
+    const eventChance = Math.random();
+    const eventMessage = document.getElementById("event-message");
+
+    if (eventChance < 0.3) {
+        const eventType = Math.random() < 0.5 ? "market boom" : "property damage";
+        const impact = (Math.random() * 0.5 + 0.5).toFixed(2); // 50%-100%
+
+        if (eventType === "market boom") {
+            earnings *= parseFloat(impact);
+            eventMessage.textContent = `Market boom! Earnings increased by ${((impact - 1) * 100).toFixed(0)}%!`;
+        } else {
+            earnings *= parseFloat(1 - impact);
+            eventMessage.textContent = `Property damage! Earnings decreased by ${(impact * 100).toFixed(0)}%!`;
+        }
+
+        updateUI();
+    } else {
+        eventMessage.textContent = "No events yet.";
+    }
+}, 5000);
