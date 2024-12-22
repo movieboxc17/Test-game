@@ -1,64 +1,167 @@
-let balance = 1000;
-let earnings = 0;
-const assets = {};
-
-// Update the dashboard UI
-function updateUI() {
-    document.getElementById("balance").textContent = balance.toFixed(2);
-    document.getElementById("earnings").textContent = earnings.toFixed(2);
-
-    const assetsList = document.getElementById("assets-list");
-    assetsList.innerHTML = "";
-
-    for (const [name, asset] of Object.entries(assets)) {
-        assetsList.innerHTML += `<li>${name} x${asset.count} - $${asset.earnings}/sec</li>`;
-    }
-}
-
-// Buy an asset
-function buyAsset(name, price, rent, isStock = false) {
-    if (balance >= price) {
-        balance -= price;
-
-        if (!assets[name]) {
-            assets[name] = { count: 0, earnings: 0, isStock };
-        }
-        assets[name].count += 1;
-        assets[name].earnings += rent;
-
-        if (!isStock) earnings += rent;
-
-        updateUI();
-    } else {
-        alert("Not enough money!");
-    }
-}
-
-// Generate periodic income
-setInterval(() => {
-    balance += earnings;
-    updateUI();
-}, 1000);
-
-// Trigger random events
-setInterval(() => {
-    const eventChance = Math.random();
-    const eventMessage = document.getElementById("event-message");
-
-    if (eventChance < 0.3) {
-        const eventType = Math.random() < 0.5 ? "market boom" : "property damage";
-        const impact = (Math.random() * 0.5 + 0.5).toFixed(2); // 50%-100%
-
-        if (eventType === "market boom") {
-            earnings *= parseFloat(impact);
-            eventMessage.textContent = `Market boom! Earnings increased by ${((impact - 1) * 100).toFixed(0)}%!`;
-        } else {
-            earnings *= parseFloat(1 - impact);
-            eventMessage.textContent = `Property damage! Earnings decreased by ${(impact * 100).toFixed(0)}%!`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2b2b2b;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        updateUI();
-    } else {
-        eventMessage.textContent = "No events yet.";
-    }
-}, 5000);
+        #game-container {
+            background-color: #1f1f1f;
+            width: 80%;
+            max-width: 700px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #ffd700;
+        }
+
+        #dashboard, #store, #events {
+            margin: 20px 0;
+        }
+
+        .asset {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #event-message {
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Asset Management Game</h1>
+        <div id="dashboard">
+            <p><strong>Balance:</strong> $<span id="balance">1000</span></p>
+            <p><strong>Earnings:</strong> $<span id="earnings">0</span>/sec</p>
+            <p><strong>Owned Assets:</strong></p>
+            <ul id="assets-list"></ul>
+        </div>
+        <div id="store">
+            <h2>Buy Assets</h2>
+            <div class="asset">
+                <p>House - $200</p>
+                <button onclick="buyAsset('House', 200, 20)">Buy</button>
+            </div>
+            <div class="asset">
+                <p>Plot - $500</p>
+                <button onclick="buyAsset('Plot', 500, 50)">Buy</button>
+            </div>
+            <div class="asset">
+                <p>Hotel - $1000</p>
+                <button onclick="buyAsset('Hotel', 1000, 100)">Buy</button>
+            </div>
+            <div class="asset">
+                <p>Stock - $300</p>
+                <button onclick="buyAsset('Stock', 300, 0, true)">Buy</button>
+            </div>
+        </div>
+        <div id="events">
+            <h2>Random Events</h2>
+            <p id="event-message">No events yet.</p>
+        </div>
+    </div>
+    <script>
+        let balance = 1000;
+        let earnings = 0;
+        const assets = {};
+
+        // Update the dashboard UI
+        function updateUI() {
+            document.getElementById("balance").textContent = balance.toFixed(2);
+            document.getElementById("earnings").textContent = earnings.toFixed(2);
+
+            const assetsList = document.getElementById("assets-list");
+            assetsList.innerHTML = "";
+
+            for (const [name, asset] of Object.entries(assets)) {
+                assetsList.innerHTML += `<li>${name} x${asset.count} - $${asset.earnings}/sec</li>`;
+            }
+        }
+
+        // Buy an asset
+        function buyAsset(name, price, rent, isStock = false) {
+            if (balance >= price) {
+                balance -= price;
+
+                if (!assets[name]) {
+                    assets[name] = { count: 0, earnings: 0, isStock };
+                }
+                assets[name].count += 1;
+                assets[name].earnings += rent;
+
+                if (!isStock) earnings += rent;
+
+                updateUI();
+            } else {
+                alert("Not enough money!");
+            }
+        }
+
+        // Generate periodic income
+        setInterval(() => {
+            balance += earnings;
+            updateUI();
+        }, 1000);
+
+        // Trigger random events
+        setInterval(() => {
+            const eventChance = Math.random();
+            const eventMessage = document.getElementById("event-message");
+
+            if (eventChance < 0.3) {
+                const eventType = Math.random() < 0.5 ? "market boom" : "property damage";
+                const impact = (Math.random() * 0.5 + 0.5).toFixed(2); // 50%-100%
+
+                if (eventType === "market boom") {
+                    earnings *= parseFloat(impact);
+                    eventMessage.textContent = `Market boom! Earnings increased by ${((impact - 1) * 100).toFixed(0)}%!`;
+                } else {
+                    earnings *= parseFloat(1 - impact);
+                    eventMessage.textContent = `Property damage! Earnings decreased by ${(impact * 100).toFixed(0)}%!`;
+                }
+
+                updateUI();
+            } else {
+                eventMessage.textContent = "No events yet.";
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
